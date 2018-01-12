@@ -1,0 +1,11 @@
+# QingCloud services configuration
+qy_config:
+  access_key_id: "WJJWLKWMBVUOYDTOTMPP"
+  secret_access_key: "CRQeZa6bYxHc6lwnFHAiqjxTWiHq28DPsecvfIyw"
+  host: "api.kunlcloud.com"
+  port: 80
+  protocol: "http"
+  uri: "app"
+
+bi_config:
+  bi_uri: 'bi.yonghong.com'
