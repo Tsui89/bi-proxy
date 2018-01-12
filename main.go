@@ -3,14 +3,14 @@ package main
 import (
 	"net/http"
 	"log"
-
+	"github.com/Tsui89/bi-proxy/qc"
 )
 
 
 
 func main() {
 
-	p:=NewProxy("./config.yaml")
+	p:=qc.NewProxy("./config.yaml")
 
 	http.HandleFunc("/", p.ProxyServer)
 	err := http.ListenAndServe(":8080", nil)

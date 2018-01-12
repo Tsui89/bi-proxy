@@ -1,4 +1,4 @@
-package main
+package qc
 
 import "encoding/json"
 
@@ -39,7 +39,7 @@ type DescribeUsersResp struct{
 //"nologin": 0,
 //"verify_status": "new"
 type User struct{
-	BiUri string
+	//BiUri string
 	UserName string `json:"user_name"`
 	Email string `json:"email"`
 	UserId string	`json:"user_id"`
@@ -57,22 +57,3 @@ type User struct{
 	Currency string `json:"currency"`
 }
 
-func (user User)IsExist()bool{
-
-	return true
-}
-
-func (user User)Create()error{
-
-	return nil
-}
-
-func (user User)Authorization()error{
-
-	return nil
-}
-
-func (user User)Redirect(){
-
-	return
-}

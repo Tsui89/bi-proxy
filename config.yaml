@@ -6,6 +6,9 @@ qy_config:
   port: 80
   protocol: "http"
   uri: "app"
+  app_id: "app-ptfa3keh"
 
-bi_config:
-  bi_uri: 'bi.yonghong.com'
+poxied:
+  type: bi
+  config:
+    bi_uri: 'bi.yonghong.com'

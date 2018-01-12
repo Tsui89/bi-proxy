@@ -1,4 +1,4 @@
-package main
+package qc
 
 import (
 	"fmt"
@@ -10,11 +10,12 @@ import (
 	"encoding/json"
 	"github.com/ghodss/yaml"
 	"os"
+	"github.com/Tsui89/bi-proxy/bi"
 )
 
-type BiConfig struct{
-	BiUri string	`json:"bi_uri"`
-}
+//type BiConfig struct{
+//	BiUri string	`json:"bi_uri"`
+//}
 
 
 type Config struct {
@@ -24,15 +25,20 @@ type Config struct {
 	Port              int    `json:"port"`
 	Protocol          string `json:"protocol"`
 	URI               string `json:"uri"`
+	AppId	string	`json:"app_id"`
+}
+
+type PoxiedConfig struct{
+	Type string `json:"type"`
+	Config json.RawMessage `json:"config"`
 }
 
 type Proxy struct{
 	QYConfig Config `json:"qy_config"`
-	BIConfig BiConfig `json:"bi_config"`
+	PConfig PoxiedConfig `json:"poxied_config"`
 	logger *log.Logger
+	conn  Connector
 }
-
-
 
 func NewProxy(fp string)*Proxy  {
 	var p Proxy
@@ -41,6 +47,11 @@ func NewProxy(fp string)*Proxy  {
 	fmt.Println(string(conf))
 
 	yaml.Unmarshal(conf,&p)
+	switch p.PConfig.Type {
+	case "bi":
+		p.conn = bi.NewBi(p.PConfig.Config)
+		p.conn.Connect()
+	}
 	p.logger = log.New(os.Stdout,"proxy ", log.Lshortfile|log.Ltime)
 	p.logger.Println(p)
 	return &p
@@ -88,13 +99,12 @@ func (p Proxy)ProxyServer(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, string(resStr))
 }
 
-
 func (p Proxy)GetUser(payload, signature []byte)(User,error){
 	var auth QCAuth
 	var qcInfo QCinfo
 	var rb DescribeUsersResp
 	var user User
-	user.BiUri = p.BIConfig.BiUri
+	//user.BiUri = p.BIConfig.BiUri
 	auth.Payload,auth.Signature = payload,signature
 	auth.SecretKey = []byte(p.QYConfig.SecretAccessKey)
 
@@ -116,7 +126,7 @@ func (p Proxy)GetUser(payload, signature []byte)(User,error){
 	})
 	ps.Add(&Parameter{
 		"time_stamp",
-		"2018-01-13T05:14:17Z",
+		qcInfo.TimeStamp,
 	})
 
 	ps.Add(&Parameter{
@@ -142,7 +152,7 @@ func (p Proxy)GetUser(payload, signature []byte)(User,error){
 	})
 	ps.Add(&Parameter{
 		"app_id",
-		"	app-ptfa3keh",
+		p.QYConfig.AppId,
 	})
 	method := "GET"
 	endPoint:=p.QYConfig.Protocol+"://"+p.QYConfig.Host
@@ -169,5 +179,4 @@ func (p Proxy)GetUser(payload, signature []byte)(User,error){
 	}
 	p.logger.Println(user)
 	return user,nil
-
 }
