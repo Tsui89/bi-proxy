@@ -1,4 +1,5 @@
 # QingCloud services configuration
+
 qy_config:
   access_key_id: "WJJWLKWMBVUOYDTOTMPP"
   secret_access_key: "CRQeZa6bYxHc6lwnFHAiqjxTWiHq28DPsecvfIyw"
@@ -8,7 +9,11 @@ qy_config:
   uri: "app"
   app_id: "app-ptfa3keh"
 
-poxied:
+poxied_config:
   type: bi
   config:
-    bi_uri: 'bi.yonghong.com'
+    uri: "http://192.168.130.44:28080/bi"
+    adminv: "admin"
+    admin_passv: "g5"
+    default_passv: "qingcloud123"
+    default_group: "qingcloud"

@@ -39,7 +39,6 @@ type DescribeUsersResp struct{
 //"nologin": 0,
 //"verify_status": "new"
 type User struct{
-	//BiUri string
 	UserName string `json:"user_name"`
 	Email string `json:"email"`
 	UserId string	`json:"user_id"`

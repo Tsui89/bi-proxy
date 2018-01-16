@@ -1,60 +1,45 @@
 package qc
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"io/ioutil"
-	"io"
 	"log"
 	"encoding/json"
 	"github.com/ghodss/yaml"
 	"os"
-	"github.com/Tsui89/bi-proxy/bi"
+	"github.com/Tsui89/bi-proxy/connector/bi"
 )
 
-//type BiConfig struct{
-//	BiUri string	`json:"bi_uri"`
-//}
-
-
-type Config struct {
-	AccessKeyID     string `json:"access_key_id"`
-	SecretAccessKey string `json:"secret_access_key"`
-	Host              string `json:"host"`
-	Port              int    `json:"port"`
-	Protocol          string `json:"protocol"`
-	URI               string `json:"uri"`
-	AppId	string	`json:"app_id"`
-}
-
-type PoxiedConfig struct{
-	Type string `json:"type"`
-	Config json.RawMessage `json:"config"`
-}
-
-type Proxy struct{
-	QYConfig Config `json:"qy_config"`
-	PConfig PoxiedConfig `json:"poxied_config"`
-	logger *log.Logger
-	conn  Connector
-}
-
-func NewProxy(fp string)*Proxy  {
+func NewProxy(fp string)(*Proxy,  error ) {
 	var p Proxy
+	var err error
 
 	conf,_ := ioutil.ReadFile(fp)
-	fmt.Println(string(conf))
+	//fmt.Println(string(conf))
 
 	yaml.Unmarshal(conf,&p)
+	//var logFile *os.File
+	logFile := os.Stdout
+	if (p.LogFile != ""){
+		logFile,err = os.OpenFile(p.LogFile,os.O_CREATE|os.O_RDWR,0666)
+		if err !=nil{
+			return nil,err
+		}
+	}
+	p.logger = log.New(logFile,"proxy ", log.Lshortfile|log.Ltime)
+
 	switch p.PConfig.Type {
 	case "bi":
-		p.conn = bi.NewBi(p.PConfig.Config)
+		p.conn = bi.NewBi(p.PConfig.Config,p.logger)
 		p.conn.Connect()
 	}
-	p.logger = log.New(os.Stdout,"proxy ", log.Lshortfile|log.Ltime)
 	p.logger.Println(p)
-	return &p
+	return &p,nil
+}
+
+func (p Proxy)Close(){
+	p.conn.Close()
 }
 
 func parseBody(data string)(payload,signature []byte){
@@ -69,13 +54,7 @@ func (p Proxy)ProxyServer(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	log.Println("Method: ",req.Method)
-	log.Println("Cookies: ",req.Cookies())
-	log.Println("Form: ",req.Form)
-	log.Println()
-	//body,_ := req.GetBody()
 	data,_:=ioutil.ReadAll(req.Body)
-	log.Println(string(data))
 
 	var auth QCAuth
 	auth.Payload,auth.Signature = parseBody(string(data))
@@ -86,17 +65,37 @@ func (p Proxy)ProxyServer(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Unauthorized"))
 		return
 	}
+
 	p.logger.Println("authentication success")
 	qcinfo:=auth.ExtractPayload()
 	p.logger.Println(qcinfo)
+	if p.conn.IsConnected() == false{
+		err := p.conn.Refresh()
+		if err != nil{
+			w.WriteHeader(500)
+			w.Write([]byte("refresh error: "+ err.Error()))
+			return
+		}
+	}
+
 	user,err := p.GetUser(auth.Payload,auth.Signature)
 	if err != nil{
 		w.WriteHeader(500)
-		w.Write([]byte("something error"))
+		w.Write([]byte("get user error: "+err.Error()))
 		return
 	}
-	resStr,_:=json.Marshal(user)
-	io.WriteString(w, string(resStr))
+	userRaw,_ :=json.Marshal(user)
+	p.conn.SetUser(userRaw)
+	if p.conn.IsUserExist() == false{
+		err:= p.conn.CreateUser()
+		if err != nil{
+			w.WriteHeader(500)
+			w.Write([]byte("create user error: "+err.Error()))
+			return
+		}
+	}
+	p.conn.Redirect(w,req)
+	return
 }
 
 func (p Proxy)GetUser(payload, signature []byte)(User,error){

@@ -1,13 +1,19 @@
 package qc
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type Connector interface{
-	Connect()
-	Close()
-	IsUserExist(User)bool
-	CreateUser(User)error
-	Authorization(User)error
-	Redirect(User)http.Handler
+	Connect()error
+	Close()error
+	IsConnected()bool
+	Refresh()error
+	SetUser(message json.RawMessage)error
+	IsUserExist()bool
+	CreateUser()error
+	Authorization()error
+	Redirect(w http.ResponseWriter,r *http.Request)
 }
 
