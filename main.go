@@ -7,12 +7,10 @@ import (
 	"fmt"
 )
 
-
-
 func main() {
 
-	p,err:=qc.NewProxy("./config.yaml")
-	if err !=nil{
+	p, err := qc.NewProxy("./config.yaml")
+	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}

@@ -15,5 +15,5 @@ poxied_config:
     uri: "http://192.168.130.44:28080/bi"
     adminv: "admin"
     admin_passv: "g5"
-    default_passv: "qingcloud123"
+    default_passv: "adfe2ER1wec"
     default_group: "qingcloud"

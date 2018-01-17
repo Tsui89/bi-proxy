@@ -12,20 +12,20 @@ import "encoding/xml"
 //request get user
 type Req struct {
 	XMLName xml.Name `xml:"ref"`
-	Type string `xml:"type"`
-	Name string `xml:"name"`
+	Type    string   `xml:"type"`
+	Name    string   `xml:"name"`
 }
 
 //request save user
 
 type UserSaveReq struct {
-	XMLName xml.Name `xml:"info"`
+	XMLName  xml.Name `xml:"info"`
 	UserInfo UserInfo
 }
 
 //request save group
 
 type GroupSaveReq struct {
-	XMLName xml.Name `xml:"info"`
+	XMLName   xml.Name `xml:"info"`
 	GroupInfo GroupInfo
 }

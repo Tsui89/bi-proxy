@@ -1,11 +1,11 @@
 package bi
 
 const (
-	UriAPI  = "api"
+	UriAPI    = "api"
 	UriViewer = "Viewer"
 
-	ActionLogin  = "login"
-	ActionLogout = "logout"
-	ActionGetNode = "getNode"
+	ActionLogin    = "login"
+	ActionLogout   = "logout"
+	ActionGetNode  = "getNode"
 	ActionSaveNode = "saveNode"
 )

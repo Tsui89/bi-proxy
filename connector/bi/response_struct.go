@@ -5,12 +5,12 @@ import "encoding/xml"
 //response get token
 
 type Result struct {
-	Level int `xml:"level"`
+	Level   int    `xml:"level"`
 	Message string `xml:"message"`
 }
 
 type TokenResp struct {
-	XMLName xml.Name `xml:"results"`
+	XMLName     xml.Name `xml:"results"`
 	TokenResult []Result `xml:"result"`
 }
 
@@ -20,8 +20,8 @@ type TokenResp struct {
 //}
 
 //response get user
-type UserResp struct{
-	XMLName xml.Name `xml:"results"`
+type UserResp struct {
+	XMLName    xml.Name     `xml:"results"`
 	UserResult []UserResult `xml:"result"`
 }
 type UserResult struct {
@@ -33,25 +33,25 @@ type UserAsset struct {
 }
 
 type UserInfo struct {
-	XMLName xml.Name `xml:"user"`
-	IsOverWrite string `xml:"isOverWrite,attr"`
-	Name string `xml:"name"`
-	Alias string `xml:"alias"`
-	Email string `xml:"email"`
-	Parent string `xml:"parent"`
-	Roles string	`xml:"roles"`
-	Pass string `xml:"pass"`
+	XMLName     xml.Name `xml:"user"`
+	IsOverWrite string   `xml:"isOverWrite,attr"`
+	Name        string   `xml:"name"`
+	Alias       string   `xml:"alias"`
+	Email       string   `xml:"email"`
+	Parent      string   `xml:"parent"`
+	Roles       string   `xml:"roles"`
+	Password    string   `xml:"password"`
 }
 
 //respone  action default
-type Results struct{
+type Results struct {
 	XMLName xml.Name `xml:"results"`
-	Result []Result `xml:"result"`
+	Result  []Result `xml:"result"`
 }
 
 //response get group
-type GroupResp struct{
-	XMLName xml.Name `xml:"results"`
+type GroupResp struct {
+	XMLName     xml.Name      `xml:"results"`
 	GroupResult []GroupResult `xml:"result"`
 }
 type GroupResult struct {
@@ -64,7 +64,7 @@ type GroupAsset struct {
 
 type GroupInfo struct {
 	XMLName xml.Name `xml:"group"`
-	Name string `xml:"name"`
-	Parent string `xml:"parent"`
-	Roles string	`xml:"roles"`
+	Name    string   `xml:"name"`
+	Parent  string   `xml:"parent"`
+	Roles   string   `xml:"roles"`
 }
