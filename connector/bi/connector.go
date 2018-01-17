@@ -8,7 +8,7 @@ import (
 	"log"
 	"io/ioutil"
 	"encoding/xml"
-	"github.com/pkg/errors"
+	"errors"
 )
 
 func NewBi(config json.RawMessage, logger *log.Logger) *BIConfig {
