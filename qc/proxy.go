@@ -9,6 +9,7 @@ import (
 	"github.com/ghodss/yaml"
 	"os"
 	"github.com/Tsui89/bi-proxy/connector/bi"
+	"fmt"
 )
 
 func NewProxy(fp string) (*Proxy, error) {
@@ -154,7 +155,7 @@ func (p Proxy) GetUser(payload, signature []byte) (User, error) {
 		p.QYConfig.AppId,
 	})
 	method := "GET"
-	endPoint := p.QYConfig.Protocol + "://" + p.QYConfig.Host
+	endPoint := p.QYConfig.Protocol + "://" + p.QYConfig.Host+":"+fmt.Sprintf("%d",p.QYConfig.Port)
 	uri := p.QYConfig.URI
 	secretKey := p.QYConfig.SecretAccessKey
 	p.logger.Println(method, endPoint, uri, secretKey)
