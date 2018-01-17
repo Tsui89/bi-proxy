@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"net/url"
-	"strings"
 )
 
 //
@@ -27,7 +26,7 @@ import (
 //}
 func TestBIConfig_IsUserExist(t *testing.T) {
 	var b BIConfig
-	b.Config.APIURI = "http://192.168.130.44:28080/bi"
+	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
 	b.Config.DefaultGroup = "qingcloud"
@@ -50,7 +49,7 @@ func TestBIConfig_IsUserExist(t *testing.T) {
 
 func TestBIConfig_CreateUser(t *testing.T) {
 	var b BIConfig
-	b.Config.APIURI = "http://192.168.130.44:28080/bi"
+	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
 	b.Config.DefaultPassv = "qingcloud123"
@@ -76,7 +75,7 @@ func TestBIConfig_CreateUser(t *testing.T) {
 
 func TestBIConfig_Redirect(t *testing.T) {
 	var b BIConfig
-	b.Config.APIURI = "http://192.168.130.44:28080/bi"
+	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
 	b.Config.DefaultPassv = "qingcloud123"
@@ -110,7 +109,7 @@ func TestBIConfig_Redirect(t *testing.T) {
 
 func TestBIConfig_GetUserInfo(t *testing.T) {
 	var b BIConfig
-	b.Config.APIURI = "http://192.168.130.44:28080/bi"
+	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
 	b.Config.DefaultPassv = "qingcloud123"
