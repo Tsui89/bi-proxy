@@ -155,7 +155,7 @@ func (p Proxy) GetUser(payload, signature []byte) (User, error) {
 		p.QYConfig.AppId,
 	})
 	method := "GET"
-	endPoint := p.QYConfig.Protocol + "://" + p.QYConfig.Host+":"+fmt.Sprintf("%d",p.QYConfig.Port)
+	endPoint := p.QYConfig.Protocol + "://" + p.QYConfig.Host + ":" + fmt.Sprintf("%d", p.QYConfig.Port)
 	uri := p.QYConfig.URI
 	secretKey := p.QYConfig.SecretAccessKey
 	p.logger.Println(method, endPoint, uri, secretKey)

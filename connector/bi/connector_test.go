@@ -83,8 +83,8 @@ func TestBIConfig_Redirect(t *testing.T) {
 	b.Logger = log.New(os.Stdout, "test ", log.Lshortfile|log.Ltime)
 	b.User.UserName = "cwc-demo"
 
-	ru,_ := url.Parse(b.Config.RedirectUri)
-	rq,_ := url.ParseQuery(ru.RawQuery)
+	ru, _ := url.Parse(b.Config.RedirectUri)
+	rq, _ := url.ParseQuery(ru.RawQuery)
 	t.Log(ru.User)
 	t.Log(ru.Host)
 	t.Log(ru.Path)
@@ -97,8 +97,8 @@ func TestBIConfig_Redirect(t *testing.T) {
 	t.Log(ru.String())
 	t.Log(rq.Encode())
 
-	rq.Set("actions","login")
-    ru.RawQuery = rq.Encode()
+	rq.Set("actions", "login")
+	ru.RawQuery = rq.Encode()
 
 	t.Log(rq.Encode())
 

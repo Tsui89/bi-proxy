@@ -73,16 +73,16 @@ func (b *BIConfig) requestPost(urlStr string, f map[string]string) (body []byte,
 	return body, nil
 }
 func (b *BIConfig) getToken(name, password string) (string, error) {
-	ru,err:= url.Parse(b.Config.APIURI)
+	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
 		return "", err
 	}
 	b.Logger.Println(ru.RawPath)
 	b.Logger.Println(ru.RawQuery)
 	rq := ru.Query()
-	rq.Set("action",ActionLogin)
-	rq.Set("adminv",name)
-	rq.Set("passv",password)
+	rq.Set("action", ActionLogin)
+	rq.Set("adminv", name)
+	rq.Set("passv", password)
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 	b.Logger.Println(ru.Path)
@@ -136,13 +136,13 @@ func (b *BIConfig) Connect() error {
 }
 
 func (b *BIConfig) Close() error {
-	ru,err:= url.Parse(b.Config.APIURI)
+	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
-		return  err
+		return err
 	}
 	rq := ru.Query()
-	rq.Set("action",ActionLogout)
-	rq.Set("token",b.Token)
+	rq.Set("action", ActionLogout)
+	rq.Set("token", b.Token)
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 
@@ -198,13 +198,13 @@ func (b *BIConfig) IsUserExist() bool {
 }
 
 func (b *BIConfig) IsGroupExist() bool {
-	ru,err:= url.Parse(b.Config.APIURI)
+	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
-		return  false
+		return false
 	}
 	rq := ru.Query()
-	rq.Set("action",ActionGetNode)
-	rq.Set("token",b.Token)
+	rq.Set("action", ActionGetNode)
+	rq.Set("token", b.Token)
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 	//
@@ -252,14 +252,14 @@ func (b *BIConfig) requestGet(urlStr string, reqData interface{}) ([]byte, error
 }
 
 func (b *BIConfig) GetUserInfo(name, parent string) (UserInfo, error) {
-	ru,err:= url.Parse(b.Config.APIURI)
+	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
 		return UserInfo{}, err
 	}
 	rq := ru.Query()
-	rq.Set("action",ActionGetNode)
-	rq.Set("token",b.Token)
-	rq.Set("returnPwd","yes")
+	rq.Set("action", ActionGetNode)
+	rq.Set("token", b.Token)
+	rq.Set("returnPwd", "yes")
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 
@@ -315,14 +315,14 @@ func (b *BIConfig) isUserExist(name, parent string) bool {
 }
 
 func (b *BIConfig) CreateDefaultGroup() error {
-	ru,err:= url.Parse(b.Config.APIURI)
+	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
 		return err
 	}
 	rq := ru.Query()
-	rq.Set("action",ActionSaveNode)
-	rq.Set("token",b.Token)
-	rq.Set("type","group")
+	rq.Set("action", ActionSaveNode)
+	rq.Set("token", b.Token)
+	rq.Set("type", "group")
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 
@@ -358,14 +358,14 @@ func (b *BIConfig) CreateDefaultGroup() error {
 }
 func (b *BIConfig) CreateUser() error {
 
-	ru,err:= url.Parse(b.Config.APIURI)
+	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
 		return err
 	}
 	rq := ru.Query()
-	rq.Set("action",ActionSaveNode)
-	rq.Set("token",b.Token)
-	rq.Set("type","user")
+	rq.Set("action", ActionSaveNode)
+	rq.Set("token", b.Token)
+	rq.Set("type", "user")
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 
@@ -436,8 +436,8 @@ func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
 	//}
 	//paramStr := generateParamStr(params)
 
-	ru,err := url.Parse(b.Config.RedirectUri)
-	if err !=nil{
+	ru, err := url.Parse(b.Config.RedirectUri)
+	if err != nil {
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
@@ -446,8 +446,8 @@ func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
 	}
 	rq := ru.Query()
 	//rq.Set("au_act",ActionLogin)
-	rq.Set("adminv",b.User.UserId)
-	rq.Set("passv",user.Password)
+	rq.Set("adminv", b.User.UserId)
+	rq.Set("passv", user.Password)
 	ru.RawQuery = rq.Encode()
 	//ru.RawQuery = strings.Join([]string{ru.RawQuery,paramStr},"&")
 	urlStr := ru.String()
