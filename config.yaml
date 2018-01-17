@@ -12,8 +12,10 @@ qy_config:
 poxied_config:
   type: bi
   config:
-    uri: "http://192.168.130.44:28080/bi"
+    api_uri: "http://192.168.130.44:28080/bi/api"
     adminv: "admin"
     admin_passv: "g5"
-    default_passv: "adfe2ER1wec"
-    default_group: "qingcloud"
+    default_passv: "adfe2ER1wec"    #create new user
+    default_group: "qingcloud"      #user group
+#    redirect_uri: "http://192.168.130.44:28080/bi/Viewer?proc=1&action=viewer&db=%E9%A3%8E%E6%9C%BA%E5%81%A5%E5%BA%B7%E8%AF%84%E4%BC%B0%E5%8A%A9%E6%89%8B/%E9%A3%8E%E6%9C%BA%E5%BA%94%E7%94%A8%E5%8F%AF%E8%A7%86%E5%8C%96%E8%AE%BE%E8%AE%A1V2"
+    redirect_uri: "http://192.168.130.44:28080/bi/Viewer?au_act=login"

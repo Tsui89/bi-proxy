@@ -3,11 +3,12 @@ package bi
 import "log"
 
 type Config struct {
-	URI          string `json:"uri"`
+	APIURI          string `json:"api_uri"`
 	Adminv       string `json:"adminv"`
 	AdminPassv   string `json:"admin_passv"`
 	DefaultPassv string `json:"default_passv"`
 	DefaultGroup string `json:"default_group"`
+	RedirectUri	string	`json:"redirect_uri"`
 }
 
 type User struct {

@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"encoding/xml"
 	"errors"
+	"net/url"
 )
 
 func NewBi(config json.RawMessage, logger *log.Logger) *BIConfig {
@@ -72,15 +73,29 @@ func (b *BIConfig) requestPost(urlStr string, f map[string]string) (body []byte,
 	return body, nil
 }
 func (b *BIConfig) getToken(name, password string) (string, error) {
-	params := map[string]interface{}{
-		"action": ActionLogin,
-		"adminv": name,
-		"passv":  password,
+	ru,err:= url.Parse(b.Config.APIURI)
+	if err != nil {
+		return "", err
 	}
-	paramStr := generateParamStr(params)
-
-	urlStr := strings.Join(
-		[]string{strings.Join([]string{b.Config.URI, UriAPI}, "/"), paramStr}, "?")
+	b.Logger.Println(ru.RawPath)
+	b.Logger.Println(ru.RawQuery)
+	rq := ru.Query()
+	rq.Set("action",ActionLogin)
+	rq.Set("adminv",name)
+	rq.Set("passv",password)
+	ru.RawQuery = rq.Encode()
+	urlStr := ru.String()
+	b.Logger.Println(ru.Path)
+	b.Logger.Println(ru.RawQuery)
+	//params := map[string]interface{}{
+	//	"action": ActionLogin,
+	//	"adminv": name,
+	//	"passv":  password,
+	//}
+	//paramStr := generateParamStr(params)
+	//
+	//urlStr := strings.Join(
+	//	[]string{strings.Join([]string{b.Config.APIURI, UriAPI}, "/"), paramStr}, "?")
 	b.Logger.Println(urlStr)
 
 	resp, err := http.Get(urlStr)
@@ -121,14 +136,24 @@ func (b *BIConfig) Connect() error {
 }
 
 func (b *BIConfig) Close() error {
-	params := map[string]interface{}{
-		"action": ActionLogout,
-		"token":  b.Token,
+	ru,err:= url.Parse(b.Config.APIURI)
+	if err != nil {
+		return  err
 	}
-	paramStr := generateParamStr(params)
+	rq := ru.Query()
+	rq.Set("action",ActionLogout)
+	rq.Set("token",b.Token)
+	ru.RawQuery = rq.Encode()
+	urlStr := ru.String()
 
-	urlStr := strings.Join(
-		[]string{strings.Join([]string{b.Config.URI, UriAPI}, "/"), paramStr}, "?")
+	//params := map[string]interface{}{
+	//	"action": ActionLogout,
+	//	"token":  b.Token,
+	//}
+	//paramStr := generateParamStr(params)
+	//
+	//urlStr := strings.Join(
+	//	[]string{strings.Join([]string{b.Config.APIURI, UriAPI}, "/"), paramStr}, "?")
 	b.Logger.Println(urlStr)
 
 	resp, err := http.Get(urlStr)
@@ -173,15 +198,25 @@ func (b *BIConfig) IsUserExist() bool {
 }
 
 func (b *BIConfig) IsGroupExist() bool {
-	params := map[string]interface{}{
-		"action": ActionGetNode,
-		"token":  b.Token,
+	ru,err:= url.Parse(b.Config.APIURI)
+	if err != nil {
+		return  false
 	}
-	paramStr := generateParamStr(params)
+	rq := ru.Query()
+	rq.Set("action",ActionGetNode)
+	rq.Set("token",b.Token)
+	ru.RawQuery = rq.Encode()
+	urlStr := ru.String()
+	//
+	//params := map[string]interface{}{
+	//	"action": ActionGetNode,
+	//	"token":  b.Token,
+	//}
+	//paramStr := generateParamStr(params)
 	var reqData Req
 	reqData.Name = b.Config.DefaultGroup
 	reqData.Type = "group"
-	body, err := b.requestGet(paramStr, reqData)
+	body, err := b.requestGet(urlStr, reqData)
 	if err != nil {
 		return false
 	}
@@ -201,10 +236,10 @@ func (b *BIConfig) IsGroupExist() bool {
 	return false
 }
 
-func (b *BIConfig) requestGet(paramStr string, reqData interface{}) ([]byte, error) {
+func (b *BIConfig) requestGet(urlStr string, reqData interface{}) ([]byte, error) {
 
-	urlStr := strings.Join(
-		[]string{strings.Join([]string{b.Config.URI, UriAPI}, "/"), paramStr}, "?")
+	//urlStr := strings.Join(
+	//	[]string{strings.Join([]string{b.Config.APIURI, UriAPI}, "/"), paramStr}, "?")
 
 	data, _ := xml.Marshal(reqData)
 	body, err := b.requestPost(urlStr, map[string]string{
@@ -217,16 +252,27 @@ func (b *BIConfig) requestGet(paramStr string, reqData interface{}) ([]byte, err
 }
 
 func (b *BIConfig) GetUserInfo(name, parent string) (UserInfo, error) {
-	params := map[string]interface{}{
-		"action":    ActionGetNode,
-		"token":     b.Token,
-		"returnPwd": "yes",
+	ru,err:= url.Parse(b.Config.APIURI)
+	if err != nil {
+		return UserInfo{}, err
 	}
-	paramStr := generateParamStr(params)
+	rq := ru.Query()
+	rq.Set("action",ActionGetNode)
+	rq.Set("token",b.Token)
+	rq.Set("returnPwd","yes")
+	ru.RawQuery = rq.Encode()
+	urlStr := ru.String()
+
+	//params := map[string]interface{}{
+	//	"action":    ActionGetNode,
+	//	"token":     b.Token,
+	//	"returnPwd": "yes",
+	//}
+	//paramStr := generateParamStr(params)
 	var reqData Req
 	reqData.Name = name
 	reqData.Type = "user"
-	body, err := b.requestGet(paramStr, reqData)
+	body, err := b.requestGet(urlStr, reqData)
 	if err != nil {
 		return UserInfo{}, err
 	}
@@ -269,15 +315,26 @@ func (b *BIConfig) isUserExist(name, parent string) bool {
 }
 
 func (b *BIConfig) CreateDefaultGroup() error {
-	params := map[string]interface{}{
-		"action": ActionSaveNode,
-		"token":  b.Token,
-		"type":   "group",
+	ru,err:= url.Parse(b.Config.APIURI)
+	if err != nil {
+		return err
 	}
-	paramStr := generateParamStr(params)
+	rq := ru.Query()
+	rq.Set("action",ActionSaveNode)
+	rq.Set("token",b.Token)
+	rq.Set("type","group")
+	ru.RawQuery = rq.Encode()
+	urlStr := ru.String()
 
-	urlStr := strings.Join(
-		[]string{strings.Join([]string{b.Config.URI, UriAPI}, "/"), paramStr}, "?")
+	//params := map[string]interface{}{
+	//	"action": ActionSaveNode,
+	//	"token":  b.Token,
+	//	"type":   "group",
+	//}
+	//paramStr := generateParamStr(params)
+
+	//urlStr := strings.Join(
+	//	[]string{strings.Join([]string{b.Config.APIURI, UriAPI}, "/"), paramStr}, "?")
 	var g GroupSaveReq
 	g.GroupInfo.Name = b.Config.DefaultGroup
 	data, _ := xml.Marshal(g)
@@ -301,15 +358,26 @@ func (b *BIConfig) CreateDefaultGroup() error {
 }
 func (b *BIConfig) CreateUser() error {
 
-	params := map[string]interface{}{
-		"action": ActionSaveNode,
-		"token":  b.Token,
-		"type":   "user",
+	ru,err:= url.Parse(b.Config.APIURI)
+	if err != nil {
+		return err
 	}
-	paramStr := generateParamStr(params)
+	rq := ru.Query()
+	rq.Set("action",ActionSaveNode)
+	rq.Set("token",b.Token)
+	rq.Set("type","user")
+	ru.RawQuery = rq.Encode()
+	urlStr := ru.String()
 
-	urlStr := strings.Join(
-		[]string{strings.Join([]string{b.Config.URI, UriAPI}, "/"), paramStr}, "?")
+	//params := map[string]interface{}{
+	//	"action": ActionSaveNode,
+	//	"token":  b.Token,
+	//	"type":   "user",
+	//}
+	//paramStr := generateParamStr(params)
+	//
+	//urlStr := strings.Join(
+	//	[]string{strings.Join([]string{b.Config.APIURI, UriAPI}, "/"), paramStr}, "?")
 	var u UserSaveReq
 	u.UserInfo.IsOverWrite = "true"
 	u.UserInfo.Name = b.User.UserId
@@ -359,17 +427,32 @@ func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	params := map[string]interface{}{
-		"au_act": ActionLogin,
-		"adminv": b.User.UserId,
-		//"passv":string(cipherStr),
-		"passv": user.Password,
-		//"token":userToken,
-	}
-	paramStr := generateParamStr(params)
+	//params := map[string]interface{}{
+	//	"au_act": ActionLogin,
+	//	"adminv": b.User.UserId,
+	//	//"passv":string(cipherStr),
+	//	"passv": user.Password,
+	//	//"token":userToken,
+	//}
+	//paramStr := generateParamStr(params)
 
-	urlStr := strings.Join(
-		[]string{strings.Join([]string{b.Config.URI, UriViewer}, "/"), paramStr}, "?")
+	ru,err := url.Parse(b.Config.RedirectUri)
+	if err !=nil{
+		if err != nil {
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
+			return
+		}
+	}
+	rq := ru.Query()
+	//rq.Set("au_act",ActionLogin)
+	rq.Set("adminv",b.User.UserId)
+	rq.Set("passv",user.Password)
+	ru.RawQuery = rq.Encode()
+	//ru.RawQuery = strings.Join([]string{ru.RawQuery,paramStr},"&")
+	urlStr := ru.String()
+	//urlStr := strings.Join(
+	//	[]string{strings.Join([]string{b.Config.APIURI, UriViewer}, "/"), paramStr}, "?")
 	b.Logger.Println(urlStr)
 
 	http.Redirect(w, req, urlStr, http.StatusFound)
