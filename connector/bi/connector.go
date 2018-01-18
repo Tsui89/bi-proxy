@@ -285,6 +285,8 @@ func (b *BIConfig) GetUserInfo(name, parent string) (UserInfo, error) {
 					}
 				}
 
+			} else {
+				return result.Asset.UserInfo, nil
 			}
 
 		}
@@ -297,6 +299,7 @@ func (b *BIConfig) GetUserInfo(name, parent string) (UserInfo, error) {
 func (b *BIConfig) isUserExist(name, parent string) bool {
 	_, err := b.GetUserInfo(name, parent)
 	if err != nil {
+		b.Logger.Println(err.Error())
 		return false
 
 	}
@@ -412,6 +415,7 @@ func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
 	//cipherStr := h.Sum(nil)
 	user, err := b.GetUserInfo(b.User.UserId, b.Config.DefaultGroup)
 	if err != nil {
+		b.Logger.Println(err.Error())
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
