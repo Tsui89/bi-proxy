@@ -362,21 +362,12 @@ func (b *BIConfig) CreateUser() error {
 	ru.RawQuery = rq.Encode()
 	urlStr := ru.String()
 
-	//params := map[string]interface{}{
-	//	"action": ActionSaveNode,
-	//	"token":  b.Token,
-	//	"type":   "user",
-	//}
-	//paramStr := generateParamStr(params)
-	//
-	//urlStr := strings.Join(
-	//	[]string{strings.Join([]string{b.Config.APIURI, UriAPI}, "/"), paramStr}, "?")
 	var u UserSaveReq
 	u.UserInfo.IsOverWrite = "true"
 	u.UserInfo.Name = b.User.UserId
 	u.UserInfo.Alias = b.User.UserName
 	u.UserInfo.Email = b.User.Email
-	u.UserInfo.Password = b.Config.DefaultPassv
+	//u.UserInfo.Password = b.Config.DefaultPassv
 	u.UserInfo.Parent = b.Config.DefaultGroup
 	data, _ := xml.Marshal(u)
 	body, err := b.requestPost(urlStr, map[string]string{
@@ -403,16 +394,7 @@ func (b *BIConfig) Authorization() error {
 }
 
 func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
-	//
-	//userToken,err:= b.getToken(b.User.UserId,b.Config.DefaultPassv)
-	//if err !=nil{
-	//	w.WriteHeader(500)
-	//	w.Write([]byte(err.Error()))
-	//	return
-	//}
-	//h := md5.New()
-	//h.Write([]byte(b.Config.DefaultPassv)) // 需要加密的字符串为 123456
-	//cipherStr := h.Sum(nil)
+
 	user, err := b.GetUserInfo(b.User.UserId, b.Config.DefaultGroup)
 	if err != nil {
 		b.Logger.Println(err.Error())
@@ -420,15 +402,6 @@ func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-
-	//params := map[string]interface{}{
-	//	"au_act": ActionLogin,
-	//	"adminv": b.User.UserId,
-	//	//"passv":string(cipherStr),
-	//	"passv": user.Password,
-	//	//"token":userToken,
-	//}
-	//paramStr := generateParamStr(params)
 
 	ru, err := url.Parse(b.Config.RedirectUri)
 	if err != nil {
