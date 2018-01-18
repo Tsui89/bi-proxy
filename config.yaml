@@ -3,10 +3,7 @@
 qy_config:
   access_key_id: "WJJWLKWMBVUOYDTOTMPP"
   secret_access_key: "CRQeZa6bYxHc6lwnFHAiqjxTWiHq28DPsecvfIyw"
-  host: "api.kunlcloud.com"
-  port: 80
-  protocol: "http"
-  uri: "app"
+  api_uri: "http://api.kunlcloud.com/app"
   app_id: "app-ptfa3keh"
 
 poxied_config:

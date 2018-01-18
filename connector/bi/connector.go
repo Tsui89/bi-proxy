@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
-	"fmt"
 	"log"
 	"io/ioutil"
 	"encoding/xml"
@@ -16,7 +15,10 @@ func NewBi(config json.RawMessage, logger *log.Logger) *BIConfig {
 	var b BIConfig
 	b.Logger = logger
 	json.Unmarshal(config, &(b.Config))
-
+	//if strings.HasSuffix(b.Config.APIURI,"/") {
+	b.Config.APIURI=strings.TrimSuffix(b.Config.APIURI,"/")
+		//b.Config.APIURI = b.Config.APIURI[:strings.f]
+	//}
 	return &b
 }
 
@@ -24,18 +26,6 @@ func (b *BIConfig) SetUser(user json.RawMessage) error {
 	json.Unmarshal(user, &(b.User))
 	return nil
 }
-
-func generateParamStr(p map[string]interface{}) string {
-	var res []string
-	for k, v := range p {
-		res = append(res, fmt.Sprintf("%s=%v", k, v))
-	}
-	return strings.Join(res, "&")
-}
-
-//func generateXmlBody(p map[string]interface{})string{
-//
-//}
 
 func (b *BIConfig) requestPost(urlStr string, f map[string]string) (body []byte, err error) {
 	var r http.Request

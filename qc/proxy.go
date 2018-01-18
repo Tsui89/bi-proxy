@@ -10,6 +10,10 @@ import (
 	"os"
 	"github.com/Tsui89/bi-proxy/connector/bi"
 	"fmt"
+	"strings"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 )
 
 func NewProxy(fp string) (*Proxy, error) {
@@ -29,6 +33,9 @@ func NewProxy(fp string) (*Proxy, error) {
 		}
 	}
 	p.logger = log.New(logFile, "proxy ", log.Lshortfile|log.Ltime)
+	if !strings.HasSuffix(p.QYConfig.ApiUri,"/"){
+		p.QYConfig.ApiUri = p.QYConfig.ApiUri+"/"
+	}
 
 	switch p.PConfig.Type {
 	case "bi":
@@ -108,58 +115,64 @@ func (p Proxy) GetUser(payload, signature []byte) (User, error) {
 	auth.Payload, auth.Signature = payload, signature
 	auth.SecretKey = []byte(p.QYConfig.SecretAccessKey)
 
-	//if !auth.Authentication() {
-	//	return &user, errors.New("authentication error.")
-	//}
-
 	qcInfo = auth.ExtractPayload()
 	user.UserId = qcInfo.UserId
 
-	ps := NewParameters()
-	ps.Add(&(Parameter{
+	method := "GET"
+	//endPoint := p.QYConfig.Host
+	//uri := p.QYConfig.URI
+	ru,_ := url.Parse(p.QYConfig.ApiUri)
+
+	//ru.Path = path.Join(ru.RawPath +p.QYConfig.URI) +"/"
+	rq:= ru.Query()
+	rq.Add(
 		"users.1",
-		qcInfo.UserId,
-	}))
-	ps.Add(&Parameter{
+		fmt.Sprint(qcInfo.UserId),
+	)
+	rq.Add(
 		"action",
-		"DescribeUsers",
-	})
-	ps.Add(&Parameter{
+		fmt.Sprint("DescribeUsers"),
+	)
+	rq.Add(
 		"time_stamp",
-		qcInfo.TimeStamp,
-	})
+		fmt.Sprint(qcInfo.TimeStamp),
+	)
 
-	ps.Add(&Parameter{
+	rq.Add(
 		"access_key_id",
-		p.QYConfig.AccessKeyID,
-	})
+		fmt.Sprint(p.QYConfig.AccessKeyID),
+	)
 
-	ps.Add(&Parameter{
+	rq.Add(
 		"version",
-		1,
-	})
-	ps.Add(&Parameter{
+		fmt.Sprint(1),
+	)
+	rq.Add(
 		"signature_method",
 		"HmacSHA256",
-	})
-	ps.Add(&Parameter{
+	)
+	rq.Add(
 		"signature_version",
-		1,
-	})
-	ps.Add(&Parameter{
+		fmt.Sprint(1),
+	)
+	rq.Add(
 		"access_token",
-		qcInfo.AccessToken,
-	})
-	ps.Add(&Parameter{
+		fmt.Sprint(qcInfo.AccessToken),)
+	rq.Add(
 		"app_id",
 		p.QYConfig.AppId,
-	})
-	method := "GET"
-	endPoint := p.QYConfig.Protocol + "://" + p.QYConfig.Host + ":" + fmt.Sprintf("%d", p.QYConfig.Port)
-	uri := p.QYConfig.URI
-	secretKey := p.QYConfig.SecretAccessKey
-	p.logger.Println(method, endPoint, uri, secretKey)
-	urlStr := ps.GenerateReqStr(method, endPoint, uri, secretKey)
+	)
+
+	sc := strings.Join([]string{method, ru.Path, rq.Encode()}, "\n")
+	//fmt.Println(urlStr=="GET\n/iaas/\naccess_key_id=QYACCESSKEYIDEXAMPLE&action=RunInstances&count=1&image_id=centos64x86a&instance_name=demo&instance_type=small_b&login_mode=passwd&login_passwd=QingCloud20130712&signature_method=HmacSHA256&signature_version=1&time_stamp=2013-08-27T14%3A30%3A10Z&version=1&vxnets.1=vxnet-0&zone=pek1")
+	hash := hmac.New(sha256.New, []byte(p.QYConfig.SecretAccessKey))
+	hash.Write([]byte(sc))
+	base64Payload := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+	index := strings.LastIndex(base64Payload, "=")
+	r := strings.Replace(base64Payload[:index+1], " ", "+", -1)
+	ru.RawQuery = rq.Encode()+"&"+"signature="+url.QueryEscape(r)
+
+	urlStr := ru.String()
 	p.logger.Println(urlStr)
 	resp, err := http.Get(urlStr)
 

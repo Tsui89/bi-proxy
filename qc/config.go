@@ -8,10 +8,8 @@ import (
 type Config struct {
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
-	Host            string `json:"host"`
-	Port            int    `json:"port"`
-	Protocol        string `json:"protocol"`
-	URI             string `json:"uri"`
+	//Host            string `json:"host"`
+	ApiUri             string `json:"api_uri"`
 	AppId           string `json:"app_id"`
 }
 
