@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"net/url"
+	"github.com/Tsui89/bi-proxy/user"
 )
 
 //
@@ -31,14 +32,15 @@ func TestBIConfig_IsUserExist(t *testing.T) {
 	b.Config.AdminPassv = "g5"
 	b.Config.DefaultGroup = "qingcloud"
 	b.Logger = log.New(os.Stdout, "test ", log.Lshortfile|log.Ltime)
-	b.User.UserId = "usr-ibGnrli6"
-	b.User.UserName = "ldapuser1"
+	var usr user.User
+	usr.UserId = "usr-ibGnrli6"
+	usr.UserName = "ldapuser1"
 	err := b.Connect()
 	if err != nil {
 		t.Fatal()
 	}
 
-	if (b.IsUserExist() == false) {
+	if (b.IsUserExist(usr) == false) {
 		t.Fatal()
 	}
 	err = b.Close()
@@ -52,17 +54,18 @@ func TestBIConfig_CreateUser(t *testing.T) {
 	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
-	b.Config.DefaultPassv = "qingcloud123"
+	//b.Config.DefaultPassv = "qingcloud123"
 	b.Config.DefaultGroup = "qingcloud"
 	b.Logger = log.New(os.Stdout, "test ", log.Lshortfile|log.Ltime)
-	b.User.UserId = "usr-ibGnrli6"
-	b.User.UserName = "ldapuser1"
+	var usr user.User
+	usr.UserId = "test"
+	usr.UserName ="can_be_del"
 	err := b.Connect()
 	if err != nil {
 		t.Fatal()
 	}
-	if (b.IsUserExist() == false) {
-		err = b.CreateUser()
+	if (b.IsUserExist(usr) == false) {
+		err = b.CreateUser(usr)
 		if err != nil {
 			t.Fatal()
 		}
@@ -78,10 +81,10 @@ func TestBIConfig_Redirect(t *testing.T) {
 	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
-	b.Config.DefaultPassv = "qingcloud123"
+	//b.Config.DefaultPassv = "qingcloud123"
 	b.Config.RedirectUri = "http://192.168.130.44:28080/bi/Viewer?proc=1&action=viewer&db=%E9%A3%8E%E6%9C%BA%E5%81%A5%E5%BA%B7%E8%AF%84%E4%BC%B0%E5%8A%A9%E6%89%8B/%E9%A3%8E%E6%9C%BA%E5%BA%94%E7%94%A8%E5%8F%AF%E8%A7%86%E5%8C%96%E8%AE%BE%E8%AE%A1V2"
 	b.Logger = log.New(os.Stdout, "test ", log.Lshortfile|log.Ltime)
-	b.User.UserName = "cwc-demo"
+	//b.User.UserName = "cwc-demo"
 
 	ru, _ := url.Parse(b.Config.RedirectUri)
 	rq, _ := url.ParseQuery(ru.RawQuery)
@@ -112,16 +115,17 @@ func TestBIConfig_GetUserInfo(t *testing.T) {
 	b.Config.APIURI = "http://192.168.130.44:28080/bi/api"
 	b.Config.Adminv = "admin"
 	b.Config.AdminPassv = "g5"
-	b.Config.DefaultPassv = "qingcloud123"
+	//b.Config.DefaultPassv = "qingcloud123"
 	b.Config.DefaultGroup = "qingcloud"
 	b.Logger = log.New(os.Stdout, "test ", log.Lshortfile|log.Ltime)
-	b.User.UserId = "usr-ibGnrli6"
-	b.User.UserName = "ldapuser1"
+	var usr user.User
+	usr.UserId = "usr-ibGnrli6"
+	usr.UserName = "ldapuser1"
 	err := b.Connect()
 	if err != nil {
 		t.Fatal()
 	}
-	_, err = b.GetUserInfo(b.User.UserId, b.Config.DefaultGroup)
+	_, err = b.GetUserInfo(usr.UserId, b.Config.DefaultGroup)
 	if err != nil {
 		t.Fatal()
 	}
