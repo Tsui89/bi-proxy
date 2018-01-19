@@ -14,6 +14,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"github.com/Tsui89/bi-proxy/user"
 )
 
 func NewProxy(fp string) (*Proxy, error) {
@@ -86,37 +87,36 @@ func (p Proxy) ProxyServer(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	user, err := p.GetUser(auth.Payload, auth.Signature)
+	qcuser, err := p.GetUser(auth.Payload, auth.Signature)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte("get user error: " + err.Error()))
 		return
 	}
-	userRaw, _ := json.Marshal(user)
-	p.conn.SetUser(userRaw)
-	if p.conn.IsUserExist() == false {
-		err := p.conn.CreateUser()
+	//userRaw, _ := json.Marshal(user)
+	if p.conn.IsUserExist(qcuser) == false {
+		err := p.conn.CreateUser(qcuser)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write([]byte("create user error: " + err.Error()))
 			return
 		}
 	}
-	p.conn.Redirect(w, req)
+	p.conn.Redirect(w, req,qcuser)
 	return
 }
 
-func (p Proxy) GetUser(payload, signature []byte) (User, error) {
+func (p Proxy) GetUser(payload, signature []byte) (user.User, error) {
 	var auth QCAuth
 	var qcInfo QCinfo
-	var rb DescribeUsersResp
-	var user User
+	var rb user.DescribeUsersResp
+	var qcuser user.User
 	//user.BiUri = p.BIConfig.BiUri
 	auth.Payload, auth.Signature = payload, signature
 	auth.SecretKey = []byte(p.QYConfig.SecretAccessKey)
 
 	qcInfo = auth.ExtractPayload()
-	user.UserId = qcInfo.UserId
+	qcuser.UserId = qcInfo.UserId
 
 	method := "GET"
 	//endPoint := p.QYConfig.Host
@@ -178,18 +178,18 @@ func (p Proxy) GetUser(payload, signature []byte) (User, error) {
 
 	if err != nil {
 		p.logger.Println(err.Error())
-		return user, err
+		return qcuser, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		p.logger.Println(err.Error())
-		return user, err
+		return qcuser, err
 	}
 	json.Unmarshal(body, &rb)
 	if rb.RetCode == 0 && len(rb.UserSet) > 0 {
-		json.Unmarshal(rb.UserSet[0], &user)
+		json.Unmarshal(rb.UserSet[0], &qcuser)
 	}
-	p.logger.Println(user)
-	return user, nil
+	p.logger.Println(qcuser)
+	return qcuser, nil
 }

@@ -9,6 +9,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"net/url"
+	"github.com/Tsui89/bi-proxy/user"
 )
 
 func NewBi(config json.RawMessage, logger *log.Logger) *BIConfig {
@@ -22,10 +23,10 @@ func NewBi(config json.RawMessage, logger *log.Logger) *BIConfig {
 	return &b
 }
 
-func (b *BIConfig) SetUser(user json.RawMessage) error {
-	json.Unmarshal(user, &(b.User))
-	return nil
-}
+//func (b *BIConfig) SetUser(user json.RawMessage) error {
+//	json.Unmarshal(user, &(b.User))
+//	return nil
+//}
 
 func (b *BIConfig) requestPost(urlStr string, f map[string]string) (body []byte, err error) {
 	var r http.Request
@@ -183,8 +184,8 @@ func (b *BIConfig) IsConnected() bool {
 	return false
 }
 
-func (b *BIConfig) IsUserExist() bool {
-	return b.isUserExist(b.User.UserId, b.Config.DefaultGroup)
+func (b *BIConfig) IsUserExist(usr user.User) bool {
+	return b.isUserExist(usr.UserId, b.Config.DefaultGroup)
 }
 
 func (b *BIConfig) IsGroupExist() bool {
@@ -349,7 +350,7 @@ func (b *BIConfig) CreateDefaultGroup() error {
 	return errors.New("create default group error.")
 
 }
-func (b *BIConfig) CreateUser() error {
+func (b *BIConfig) CreateUser(usr user.User) error {
 
 	ru, err := url.Parse(b.Config.APIURI)
 	if err != nil {
@@ -364,9 +365,9 @@ func (b *BIConfig) CreateUser() error {
 
 	var u UserSaveReq
 	u.UserInfo.IsOverWrite = "true"
-	u.UserInfo.Name = b.User.UserId
-	u.UserInfo.Alias = b.User.UserName
-	u.UserInfo.Email = b.User.Email
+	u.UserInfo.Name = usr.UserId
+	u.UserInfo.Alias = usr.UserName
+	u.UserInfo.Email = usr.Email
 	//u.UserInfo.Password = b.Config.DefaultPassv
 	u.UserInfo.Parent = b.Config.DefaultGroup
 	data, _ := xml.Marshal(u)
@@ -393,9 +394,9 @@ func (b *BIConfig) Authorization() error {
 	return nil
 }
 
-func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
+func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request,usr user.User) {
 
-	user, err := b.GetUserInfo(b.User.UserId, b.Config.DefaultGroup)
+	biuser, err := b.GetUserInfo(usr.UserId, b.Config.DefaultGroup)
 	if err != nil {
 		b.Logger.Println(err.Error())
 		w.WriteHeader(500)
@@ -413,8 +414,8 @@ func (b *BIConfig) Redirect(w http.ResponseWriter, req *http.Request) {
 	}
 	rq := ru.Query()
 	//rq.Set("au_act",ActionLogin)
-	rq.Set("adminv", b.User.UserId)
-	rq.Set("passv", user.Password)
+	rq.Set("adminv", biuser.Name)
+	rq.Set("passv", biuser.Password)
 	ru.RawQuery = rq.Encode()
 	//ru.RawQuery = strings.Join([]string{ru.RawQuery,paramStr},"&")
 	urlStr := ru.String()
