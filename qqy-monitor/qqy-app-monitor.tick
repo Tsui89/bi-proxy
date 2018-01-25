@@ -1,0 +1,87 @@
+//数据库名
+var db = 'qqy'
+
+var rp = 'autogen'
+
+//表名
+var measurement = 'app_monitor'
+
+//分组类型
+var groupBy = ['name']
+
+//过滤条件
+var whereFilter = lambda: TRUE
+
+var name = 'QQY '
+
+var idVar = name + ':{{.Group}}'
+
+//邮件Subject
+var message = name + ' {{ index .Tags "name" }}  is {{.Level}}'
+
+var idTag = 'alertID'
+
+var levelTag = 'level'
+
+var messageField = 'message'
+
+var durationField = 'duration'
+
+var outputDB = 'chronograf'
+
+var outputRP = 'autogen'
+
+var outputMeasurement = 'alerts'
+
+var triggerType = 'threshold'
+
+//邮件内容
+var details = 'ID: {{.ID}} </br>
+ CompanyUrl: {{ index .Tags "company" }} </br>
+ Contact: {{ index .Tags "contact"}} </br>
+ Name: {{ index .Tags "name"}} </br>
+ AppId: {{ index .Tags "app_id"}} </br>
+ AppUrl: {{ index .Tags "url"}} </br>
+ Level: {{.Level}} </br>
+ Value: {{ index .Fields "value" }} </br>
+ 异常信息：服务器访问超时（2000ms），或（value < 0）服务器访问返回值>=400。 </br>
+ Time: {{.Time}}'
+
+var crit1 = 2000
+var crit2 = 0
+var data = stream
+    |from()
+        .database(db)
+        .retentionPolicy(rp)
+        .measurement(measurement)
+        .groupBy(groupBy)
+        .where(whereFilter)
+    |eval(lambda: "value")
+        .as('value')
+
+var trigger = data
+    |alert()
+        .crit(lambda: "value" >= crit1 OR "value" < crit2)
+        .stateChangesOnly()
+        .message(message)
+        .id(idVar)
+        .idTag(idTag)
+        .levelTag(levelTag)
+        .messageField(messageField)
+        .durationField(durationField)
+        .details(details)
+        .email('cuiwenchang@k2data.com.cn')
+          .to('ludun@k2data.com.cn')
+          .to('xudi@k2data.com.cn')
+
+trigger
+    |influxDBOut()
+        .create()
+        .database(outputDB)
+        .retentionPolicy(outputRP)
+        .measurement(outputMeasurement)
+        .tag('alertName', name)
+        .tag('triggerType', triggerType)
+
+trigger
+    |httpOut('output')

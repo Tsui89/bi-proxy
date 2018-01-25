@@ -1,0 +1,83 @@
+var db = 'qqy'
+
+var rp = 'autogen'
+
+var measurement = 'app_monitor'
+
+var groupBy = ['name']
+
+var whereFilter = lambda: TRUE
+
+var period = 2m
+
+0s
+
+var name = 'QQY'
+
+var idVar = name + ':{{.Group}}'
+
+var message = name + ' {{ index .Tags "name" }}  is {{.Level}}'
+var idTag = 'alertID'
+
+var levelTag = 'level'
+
+var messageField = 'message'
+
+var durationField = 'duration'
+
+var outputDB = 'chronograf'
+
+var outputRP = 'autogen'
+
+var outputMeasurement = 'alerts'
+
+var triggerType = 'deadman'
+
+var threshold = 0.0
+
+var details = 'ID: {{.ID}} </br>
+ CompanyUrl: {{ index .Tags "company" }} </br>
+ Contact: {{ index .Tags "contact"}} </br>
+ Name: {{ index .Tags "name"}} </br>
+ AppId: {{ index .Tags "app_id"}} </br>
+ AppUrl: {{ index .Tags "url"}} </br>
+ Level: {{.Level}} </br>
+ 异常信息：2分钟内没有数据。 </br>
+ Time: {{.Time}}'
+
+var data = stream
+    |from()
+        .database(db)
+        .retentionPolicy(rp)
+        .measurement(measurement)
+        .groupBy(groupBy)
+        .where(whereFilter)
+
+var trigger = data
+    |deadman(threshold, period)
+        .stateChangesOnly()
+        .message(message)
+        .id(idVar)
+        .idTag(idTag)
+        .levelTag(levelTag)
+        .messageField(messageField)
+        .durationField(durationField)
+        .details(details)
+        .email('cuiwenchang@k2data.com.cn')
+          .to('ludun@k2data.com.cn')
+          .to('xudi@k2data.com.cn')
+
+trigger
+    |eval(lambda: "emitted")
+        .as('value')
+        .keep('value', messageField, durationField)
+    |influxDBOut()
+        .create()
+        .database(outputDB)
+        .retentionPolicy(outputRP)
+        .measurement(outputMeasurement)
+        .tag('alertName', name)
+        .tag('triggerType', triggerType)
+
+trigger
+    |httpOut('output')
