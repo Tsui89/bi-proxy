@@ -8,7 +8,7 @@ var groupBy = ['name']
 
 var whereFilter = lambda: TRUE
 
-var period = 2m
+var period = 3m
 
 0s
 
@@ -42,7 +42,7 @@ var details = 'ID: {{.ID}} </br>
  AppId: {{ index .Tags "app_id"}} </br>
  AppUrl: {{ index .Tags "url"}} </br>
  Level: {{.Level}} </br>
- Critical Condition：2分钟内没有数据。 </br>
+ Critical Condition：3分钟内没有数据。 </br>
  Time: {{.Time}}'
 
 var data = stream
