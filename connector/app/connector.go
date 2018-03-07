@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/Tsui89/bi-proxy/user"
 )
@@ -19,10 +20,13 @@ import (
 	Authorization() error
 	Redirect(w http.ResponseWriter, r *http.Request,usr user.User)
 */
+type Config struct {
+	RedirectUri string `json:"redirect_uri"`
+}
 
 type App struct {
-	Name        string
-	RedirectUri string `json:"redirect_uri"`
+	Name   string
+	Config Config
 }
 
 func NewApp(config json.RawMessage, logger *log.Logger) *App {
@@ -58,8 +62,33 @@ func (app *App) Authorization() error {
 	return nil
 }
 
-func (app *App) Redirect(w http.ResponseWriter, r *http.Request, usr user.User) {
-	urlStr := app.RedirectUri
+func (app *App) Redirect(w http.ResponseWriter, r *http.Request, u user.User) {
+	ru, err := url.Parse(app.Config.RedirectUri)
+	if err != nil {
+		if err != nil {
+			w.WriteHeader(500)
+			w.Write([]byte(err.Error()))
+			return
+		}
+	}
+	rq := ru.Query()
+	//rq.Set("au_act",ActionLogin)	ru.RawQuery = rq.Encode()
+	//ru.RawQuery = strings.Join([]string{ru.RawQuery,paramStr},"&")
+
+	switch u.UserId {
+	case "xxx":
+		rq.Set("user", "user-xxx")
+		rq.Set("password", "password")
+	case "yyy":
+		rq.Set("user", "user-yyy")
+		rq.Set("password", "password")
+	default:
+		w.WriteHeader(500)
+		w.Write([]byte("no such user"))
+		return
+	}
+	urlStr := ru.String()
+
 	http.Redirect(w, r, urlStr, http.StatusFound)
 	return
 }
