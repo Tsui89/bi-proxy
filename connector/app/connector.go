@@ -27,10 +27,12 @@ type Config struct {
 type App struct {
 	Name   string
 	Config Config
+	*log.Logger
 }
 
 func NewApp(config json.RawMessage, logger *log.Logger) *App {
 	var app App
+	app.Logger = logger
 	return &app
 }
 
@@ -63,6 +65,7 @@ func (app *App) Authorization() error {
 }
 
 func (app *App) Redirect(w http.ResponseWriter, r *http.Request, u user.User) {
+	app.Logger.Println("redirect to app")
 	ru, err := url.Parse(app.Config.RedirectUri)
 	if err != nil {
 		if err != nil {

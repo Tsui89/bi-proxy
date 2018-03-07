@@ -1,10 +1,10 @@
 # QingCloud services configuration
 
 qy_config:
-  access_key_id: "WJJWLKWMBVUOYDTOTMPP"
-  secret_access_key: "CRQeZa6bYxHc6lwnFHAiqjxTWiHq28DPsecvfIyw"
-  api_uri: "http://api.kunlcloud.com/app"
-  app_id: "app-ptfa3keh"
+  access_key_id: "WJJWLKWMBVUOYDTOTMPP" #access_key_id/secret_access_key 需要在云平台上创建
+  secret_access_key: "CRQeZa6bYxHc6lwnFHAiqjxTWiHq28DPsecvfIyw" 
+  api_uri: "http://api.kunlcloud.com/app" #云平台的uri，替换api.kuncluoud.com
+  app_id: "app-ptfa3keh" #创建完应用之后生成的appId
 
 poxied_config:
 #   type: bi
