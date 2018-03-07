@@ -1,5 +1,6 @@
 FROM scratch
-MAINTAINER cwc cuiwenchang@k2data.com.cn
+LABEL owner=cwc 
+LABEL email=cuiwenchang@k2data.com.cn
 #REPO gitee.com/k2tf/authx
 ADD bi-proxy /
 ADD config.yaml /

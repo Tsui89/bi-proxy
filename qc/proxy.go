@@ -9,6 +9,7 @@ import (
 	"github.com/ghodss/yaml"
 	"os"
 	"github.com/Tsui89/bi-proxy/connector/bi"
+	"github.com/Tsui89/bi-proxy/connector/app"
 	"fmt"
 	"strings"
 	"crypto/hmac"
@@ -41,8 +42,12 @@ func NewProxy(fp string) (*Proxy, error) {
 	switch p.PConfig.Type {
 	case "bi":
 		p.conn = bi.NewBi(p.PConfig.Config, p.logger)
-		p.conn.Connect()
+	case "app":
+		p.conn = app.NewApp(p.PConfig.Config, p.logger)
+	default:
+		p.logger.Fatalln("no supported connector Type")		
 	}
+	p.conn.Connect()
 	p.logger.Println(p)
 	return &p, nil
 }

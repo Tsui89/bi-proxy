@@ -6,9 +6,9 @@ var measurement = 'app_monitor'
 
 var groupBy = ['name']
 
-var whereFilter = lambda: TRUE
+var whereFilter = lambda: "value" >=0 AND "value" < 2000
 
-var period = 3m
+var period = 5m
 
 0s
 
@@ -42,7 +42,7 @@ var details = 'ID: {{.ID}} </br>
  AppId: {{ index .Tags "app_id"}} </br>
  AppUrl: {{ index .Tags "url"}} </br>
  Level: {{.Level}} </br>
- Critical Condition：3分钟内没有数据。 </br>
+ Critical Condition：5分钟内没有正常数据返回。正常数据标准：服务器访问时间小于2000ms，并且服务器访问返回值<400。 </br>
  Time: {{.Time}}'
 
 var data = stream
