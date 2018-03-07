@@ -32,7 +32,10 @@ type App struct {
 
 func NewApp(config json.RawMessage, logger *log.Logger) *App {
 	var app App
+	json.Unmarshal(config, &app.Config)
+
 	app.Logger = logger
+	app.Logger.Println("Config: ", app.Config)
 	return &app
 }
 
