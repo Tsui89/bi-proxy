@@ -91,7 +91,7 @@ func (app *App) Redirect(w http.ResponseWriter, r *http.Request, u user.User) {
 		return
 	}
 	urlStr := ru.String()
-	app.Logger.Panicln("redirect Url is: ", urlStr)
+	app.Logger.Panicln("redirect Url to: ", urlStr)
 	http.Redirect(w, r, urlStr, http.StatusFound)
 	return
 }
