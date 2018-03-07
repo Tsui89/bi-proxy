@@ -1,7 +1,8 @@
-package qc
+package connector
 
 import (
 	"net/http"
+
 	"github.com/Tsui89/bi-proxy/user"
 )
 
@@ -14,5 +15,5 @@ type Connector interface {
 	IsUserExist(usr user.User) bool
 	CreateUser(usr user.User) error
 	Authorization() error
-	Redirect(w http.ResponseWriter, r *http.Request,usr user.User)
+	Redirect(w http.ResponseWriter, r *http.Request, usr user.User)
 }

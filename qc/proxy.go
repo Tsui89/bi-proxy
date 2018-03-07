@@ -1,21 +1,22 @@
 package qc
 
 import (
-	"net/http"
-	"net/url"
-	"io/ioutil"
-	"log"
-	"encoding/json"
-	"github.com/ghodss/yaml"
-	"os"
-	"github.com/Tsui89/bi-proxy/connector/bi"
-	"github.com/Tsui89/bi-proxy/connector/app"
-	"fmt"
-	"strings"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+
+	"github.com/Tsui89/bi-proxy/connector/app"
+	"github.com/Tsui89/bi-proxy/connector/bi"
 	"github.com/Tsui89/bi-proxy/user"
+	"github.com/ghodss/yaml"
 )
 
 func NewProxy(fp string) (*Proxy, error) {
@@ -28,15 +29,15 @@ func NewProxy(fp string) (*Proxy, error) {
 	yaml.Unmarshal(conf, &p)
 	//var logFile *os.File
 	logFile := os.Stdout
-	if (p.LogFile != "") {
+	if p.LogFile != "" {
 		logFile, err = os.OpenFile(p.LogFile, os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
 			return nil, err
 		}
 	}
 	p.logger = log.New(logFile, "proxy ", log.Lshortfile|log.Ltime)
-	if !strings.HasSuffix(p.QYConfig.ApiUri,"/"){
-		p.QYConfig.ApiUri = p.QYConfig.ApiUri+"/"
+	if !strings.HasSuffix(p.QYConfig.ApiUri, "/") {
+		p.QYConfig.ApiUri = p.QYConfig.ApiUri + "/"
 	}
 
 	switch p.PConfig.Type {
@@ -45,7 +46,7 @@ func NewProxy(fp string) (*Proxy, error) {
 	case "app":
 		p.conn = app.NewApp(p.PConfig.Config, p.logger)
 	default:
-		p.logger.Fatalln("no supported connector Type")		
+		p.logger.Fatalln("no supported connector Type")
 	}
 	p.conn.Connect()
 	p.logger.Println(p)
@@ -107,7 +108,7 @@ func (p Proxy) ProxyServer(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
-	p.conn.Redirect(w, req,qcuser)
+	p.conn.Redirect(w, req, qcuser)
 	return
 }
 
@@ -126,10 +127,10 @@ func (p Proxy) GetUser(payload, signature []byte) (user.User, error) {
 	method := "GET"
 	//endPoint := p.QYConfig.Host
 	//uri := p.QYConfig.URI
-	ru,_ := url.Parse(p.QYConfig.ApiUri)
+	ru, _ := url.Parse(p.QYConfig.ApiUri)
 
 	//ru.Path = path.Join(ru.RawPath +p.QYConfig.URI) +"/"
-	rq:= ru.Query()
+	rq := ru.Query()
 	rq.Add(
 		"users.1",
 		fmt.Sprint(qcInfo.UserId),
@@ -162,7 +163,7 @@ func (p Proxy) GetUser(payload, signature []byte) (user.User, error) {
 	)
 	rq.Add(
 		"access_token",
-		fmt.Sprint(qcInfo.AccessToken),)
+		fmt.Sprint(qcInfo.AccessToken))
 	rq.Add(
 		"app_id",
 		p.QYConfig.AppId,
@@ -175,7 +176,7 @@ func (p Proxy) GetUser(payload, signature []byte) (user.User, error) {
 	base64Payload := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 	index := strings.LastIndex(base64Payload, "=")
 	r := strings.Replace(base64Payload[:index+1], " ", "+", -1)
-	ru.RawQuery = rq.Encode()+"&"+"signature="+url.QueryEscape(r)
+	ru.RawQuery = rq.Encode() + "&" + "signature=" + url.QueryEscape(r)
 
 	urlStr := ru.String()
 	p.logger.Println(urlStr)
